@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
-  title: "vibe-stack-supabase",
-  description: "Next.js + Supabase starter",
+  title: "DraftLoop — Organic Content Engine",
+  description: "Turn raw ideas into platform-native, scored social post drafts.",
 };
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased text-neutral-900">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }
