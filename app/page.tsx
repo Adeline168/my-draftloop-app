@@ -1,15 +1,24 @@
 import Link from "next/link";
 import { getActiveBrandProfile } from "@/lib/data/brand-profiles";
 import { listIdeas } from "@/lib/data/ideas";
+import { listDrafts, listDraftsWithDates } from "@/lib/data/drafts";
+import { getLatestScoresForDrafts } from "@/lib/data/scores";
 import { StatusBadge } from "@/components/status-badge";
 
 export default async function DashboardPage() {
   let loadError: string | null = null;
   let brand = null as Awaited<ReturnType<typeof getActiveBrandProfile>> | null;
   let ideas: Awaited<ReturnType<typeof listIdeas>> = [];
+  let drafts: Awaited<ReturnType<typeof listDrafts>> = [];
+  let upcoming: Awaited<ReturnType<typeof listDraftsWithDates>> = [];
 
   try {
-    [brand, ideas] = await Promise.all([getActiveBrandProfile(), listIdeas()]);
+    [brand, ideas, drafts, upcoming] = await Promise.all([
+      getActiveBrandProfile(),
+      listIdeas(),
+      listDrafts(),
+      listDraftsWithDates(),
+    ]);
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load dashboard data";
   }
@@ -22,6 +31,10 @@ export default async function DashboardPage() {
     );
   }
 
+  const scores = await getLatestScoresForDrafts(drafts.map((d) => d.id));
+  const readyDrafts = drafts.filter((d) => scores[d.id]?.passed).length;
+  const scheduledCount = upcoming.filter((d) => d.status === "scheduled").length;
+
   return (
     <div className="space-y-8">
       <div>
@@ -33,6 +46,9 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard label="Ideas in backlog" value={ideas.length} href="/ideas" />
+        <StatCard label="Drafts" value={drafts.length} href="/drafts" />
+        <StatCard label="Ready drafts" value={readyDrafts} href="/drafts" />
+        <StatCard label="Scheduled" value={scheduledCount} href="/calendar" />
       </div>
 
       <div className="rounded-xl border border-neutral-200 bg-white p-5">
