@@ -35,6 +35,9 @@ export interface BrandProfileInput {
   platform: string;
   guardrails: string;
   score_threshold: number;
+  business_identity?: string;
+  objections_notes?: string;
+  founder_story?: string;
 }
 
 export async function createBrandProfile(input: BrandProfileInput): Promise<BrandProfile> {

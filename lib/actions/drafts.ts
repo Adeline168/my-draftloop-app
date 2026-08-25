@@ -5,6 +5,7 @@ import { getActiveBrandProfile } from "@/lib/data/brand-profiles";
 import { getIdeaById, updateIdea } from "@/lib/data/ideas";
 import { createDraft, deleteDraft, getDraftById, updateDraft } from "@/lib/data/drafts";
 import { createScore } from "@/lib/data/scores";
+import { listExtractedTextBySection } from "@/lib/data/brand-files";
 import { generateDraft, assembleBodyText } from "@/lib/ai/generate-draft";
 import { scoreDraftText } from "@/lib/ai/score-draft";
 import { AIError } from "@/lib/ai/openai";
@@ -25,9 +26,19 @@ export async function generateDraftAction(
     if (!idea) return { ok: false, error: "Idea not found" };
     if (!brand) return { ok: false, error: "No brand profile found. Set one up first." };
 
+    // Best-effort: if brand_files isn't there yet (migration 0002 not applied)
+    // or the lookup fails for any reason, generation still proceeds without
+    // the extra context rather than breaking the whole core loop over it.
+    let fileContext;
+    try {
+      fileContext = await listExtractedTextBySection(brand.id);
+    } catch {
+      fileContext = undefined;
+    }
+
     let payload;
     try {
-      payload = await generateDraft(brand, idea, platform);
+      payload = await generateDraft(brand, idea, platform, fileContext);
     } catch (err) {
       const message =
         err instanceof AIError

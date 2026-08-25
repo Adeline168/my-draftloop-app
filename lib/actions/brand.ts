@@ -35,6 +35,23 @@ export async function saveBrandProfileAction(
   }
 }
 
+// Lightweight save for one of the v2 detail sections (business identity,
+// objections notes, founder story) — independent of the main brand form so
+// each section can save on its own.
+export async function updateBrandDetailAction(
+  id: string,
+  field: "business_identity" | "objections_notes" | "founder_story",
+  value: string,
+): Promise<ActionResult> {
+  try {
+    await updateBrandProfile(id, { [field]: value });
+    revalidatePath("/brand");
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Failed to save" };
+  }
+}
+
 export async function createPillarAction(input: {
   brand_profile_id: string;
   name: string;

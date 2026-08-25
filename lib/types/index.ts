@@ -14,6 +14,45 @@ export interface BrandProfile {
   platform: string;
   guardrails: string | null;
   score_threshold: number;
+  business_identity: string | null;
+  objections_notes: string | null;
+  founder_story: string | null;
+  created_at: string;
+}
+
+export type BrandFileSection = "business_identity" | "objections" | "founder_story";
+
+export const BRAND_FILE_SECTIONS: { key: BrandFileSection; label: string; helper: string }[] = [
+  {
+    key: "business_identity",
+    label: "Business identity",
+    helper: "Positioning, mission, what makes you different.",
+  },
+  {
+    key: "objections",
+    label: "Objections",
+    helper: "Common pushback and how you respond to it.",
+  },
+  {
+    key: "founder_story",
+    label: "Founder story",
+    helper: "Your journey — fuel for storytelling frameworks.",
+  },
+];
+
+export type ExtractionStatus = "pending" | "done" | "failed" | "unsupported";
+
+export interface BrandFile {
+  id: string;
+  user_id: string | null;
+  brand_profile_id: string;
+  section: BrandFileSection;
+  file_name: string;
+  storage_path: string;
+  mime_type: string | null;
+  file_size: number | null;
+  extracted_text: string | null;
+  extraction_status: ExtractionStatus;
   created_at: string;
 }
 
